@@ -9,7 +9,7 @@
 [protocol-url]: https://github.com/obsproject/obs-websocket/blob/5.1.0/docs/generated/protocol.md
 [doc-img]: https://img.shields.io/badge/pkg.go.dev-reference-blue?logo=go&logoColor=white&style=flat-square
 [doc-url]: https://pkg.go.dev/github.com/onfield/goobs
-[build-img]: https://img.shields.io/github/actions/workflow/status/andreykaipov/goobs/ci.yml?logo=github&style=flat-square&branch=master
+[build-img]: https://img.shields.io/github/actions/workflow/status/onfield/goobs/ci.yml?logo=github&style=flat-square&branch=master
 [build-url]: https://github.com/onfield/goobs/actions/workflows/ci.yml
 [goreport-img]: https://goreportcard.com/badge/github.com/onfield/goobs?logo=go&logoColor=white&style=flat-square
 [goreport-url]: https://goreportcard.com/report/github.com/onfield/goobs

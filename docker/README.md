@@ -20,19 +20,19 @@ or for any other reason you'd like to log into it. The VNC server is bound to
 The most basic usage:
 
 ```console
-❯ docker run --rm -it -p 4455:1234 ghcr.io/andreykaipov/goobs
+❯ docker run --rm -it -p 4455:1234 ghcr.io/onfield/goobs
 ```
 
 Enable VNC:
 
 ```console
-❯ docker run --rm -it -e vnc=1 -p 5900:5900 ghcr.io/andreykaipov/goobs
+❯ docker run --rm -it -e vnc=1 -p 5900:5900 ghcr.io/onfield/goobs
 ```
 
 Optionally include a password:
 
 ```console
-❯ docker run --rm -it -e vnc=1 -e vnc_password=delicious -p 5900:5900 ghcr.io/andreykaipov/goobs
+❯ docker run --rm -it -e vnc=1 -e vnc_password=delicious -p 5900:5900 ghcr.io/onfield/goobs
 ```
 
 Use some sort of VNC client (e.g. noVNC, VNC Viewer) to connect to it:
