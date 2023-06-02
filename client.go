@@ -93,14 +93,14 @@ close when your program terminates or interrupts. But here's a function anyways.
 func (c *Client) Disconnect() error {
 	c.Log.Printf("[DEBUG] Sending disconnect message")
 
-	if c.conn == nil {
-		return nil
+	if c.Connected() {
+		return c.conn.WriteMessage(
+			websocket.CloseMessage,
+			websocket.FormatCloseMessage(websocket.CloseNormalClosure, "Bye"),
+		)
 	}
 
-	return c.conn.WriteMessage(
-		websocket.CloseMessage,
-		websocket.FormatCloseMessage(websocket.CloseNormalClosure, "Bye"),
-	)
+	return nil
 }
 
 /*
@@ -227,7 +227,7 @@ func (c *Client) handleErrors() {
 
 // translates raw server messages into opcodes
 func (c *Client) handleRawServerMessages(auth chan<- error) {
-	for {
+	for c.Connected() {
 		raw := json.RawMessage{}
 		if err := c.conn.ReadJSON(&raw); err != nil {
 			switch t := err.(type) {
@@ -293,8 +293,10 @@ func (c *Client) handleOpcodes(auth chan<- error) {
 			c.Log.Printf("[INFO] Identify;")
 
 			msg := opcodes.Wrap(val).Bytes()
-			if err := c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
-				auth <- fmt.Errorf("sending Identify to server `%s`: %w", msg, err)
+			if c.Connected() {
+				if err := c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+					auth <- fmt.Errorf("sending Identify to server `%s`: %w", msg, err)
+				}
 			}
 
 		case *opcodes.Identified:
@@ -330,8 +332,10 @@ func (c *Client) handleOpcodes(auth chan<- error) {
 			c.Log.Printf("[DEBUG] Got %s Request with ID %s", val.Type, val.ID)
 
 			msg := opcodes.Wrap(val).Bytes()
-			if err := c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
-				c.errors <- fmt.Errorf("sending Request to server `%s`: %w", msg, err)
+			if c.Connected() {
+				if err := c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+					c.errors <- fmt.Errorf("sending Request to server `%s`: %w", msg, err)
+				}
 			}
 
 		case *opcodes.RequestResponse:
