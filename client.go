@@ -80,6 +80,11 @@ func WithResponseTimeout(x time.Duration) Option {
 	return func(o *Client) { o.ResponseTimeout = time.Duration(x) }
 }
 
+// Still connected?
+func (c *Client) Connected() bool {
+	return c.conn != nil
+}
+
 /*
 Disconnect sends a message to the OBS websocket server to close the client's
 open connection. You don't really have to do this as any connections should
@@ -87,6 +92,10 @@ close when your program terminates or interrupts. But here's a function anyways.
 */
 func (c *Client) Disconnect() error {
 	c.Log.Printf("[DEBUG] Sending disconnect message")
+
+	if c.conn == nil {
+		return nil
+	}
 
 	return c.conn.WriteMessage(
 		websocket.CloseMessage,
@@ -164,23 +173,6 @@ func (c *Client) connect() (err error) {
 	}
 }
 
-func (c *Client) reconnect(auth chan error) (err error) {
-	u := url.URL{Scheme: "ws", Host: c.host}
-
-	c.Log.Printf("[INFO] Reconnecting to %s", u.String())
-
-	if c.conn, _, err = c.dialer.Dial(u.String(), c.requestHeader); err != nil {
-		return err
-	}
-
-	select {
-	case a := <-auth:
-		return a
-	case <-time.After(c.ResponseTimeout * time.Millisecond):
-		return fmt.Errorf("timeout waiting for authentication: %dms", c.ResponseTimeout)
-	}
-}
-
 // Here we connect and send a v4.x-like message to the server. If it responds
 // properly, we want to fail immediately. Motiviation is similar to what the
 // obs-websocket server does when it detects a v4 client connecting to it (see
@@ -224,13 +216,17 @@ func (c *Client) checkProtocolVersion() error {
 // expose errors as events 🤷
 func (c *Client) handleErrors() {
 	for err := range c.errors {
+		if err == nil {
+			c.Log.Printf("[DEBUG] handleErrors() exiting - %w", err)
+			return
+		}
 		c.Log.Printf("[ERROR] %s", err)
 		c.writeEvent(err)
 	}
 }
 
 // translates raw server messages into opcodes
-func (c *Client) handleRawServerMessages(auth chan error) {
+func (c *Client) handleRawServerMessages(auth chan<- error) {
 	for {
 		raw := json.RawMessage{}
 		if err := c.conn.ReadJSON(&raw); err != nil {
@@ -249,17 +245,12 @@ func (c *Client) handleRawServerMessages(auth chan error) {
 				}
 				return
 			default:
-				c.errors <- fmt.Errorf("reading raw message from websocket connection: %w", t)
 				c.conn.Close()
-				for {
-					time.Sleep(15 * time.Second)
-					if c.checkProtocolVersion() == nil {
-						if c.reconnect(auth) == nil {
-							break
-						}
-					}
-				}
-				continue
+				c.conn = nil
+				c.errors <- fmt.Errorf("reading raw message from websocket connection: %w", t)
+				c.errors <- nil
+				c.Log.Printf("[DEBUG] handleRawServerMessages() exiting - %w", t)
+				return
 			}
 		}
 
@@ -350,6 +341,9 @@ func (c *Client) handleOpcodes(auth chan<- error) {
 
 		default:
 			c.errors <- fmt.Errorf("unhandled opcode %T", op)
+			c.errors <- nil
+			c.Log.Printf("[DEBUG] handleOpCodes() exiting - %T", op)
+			return
 		}
 	}
 }
@@ -377,5 +371,8 @@ func (c *Client) writeEvent(event interface{}) {
 func (c *Client) Listen(f func(interface{})) {
 	for event := range c.IncomingEvents {
 		f(event)
+		if c.conn == nil {
+			return
+		}
 	}
 }
