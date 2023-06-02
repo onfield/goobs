@@ -12,13 +12,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/andreykaipov/goobs/api"
-	"github.com/andreykaipov/goobs/api/events"
-	"github.com/andreykaipov/goobs/api/events/subscriptions"
-	"github.com/andreykaipov/goobs/api/opcodes"
 	"github.com/buger/jsonparser"
 	"github.com/gorilla/websocket"
 	"github.com/hashicorp/logutils"
+	"github.com/onfield/goobs/api"
+	"github.com/onfield/goobs/api/events"
+	"github.com/onfield/goobs/api/events/subscriptions"
+	"github.com/onfield/goobs/api/opcodes"
 )
 
 // Client represents a client to an OBS websockets server.
@@ -164,6 +164,23 @@ func (c *Client) connect() (err error) {
 	}
 }
 
+func (c *Client) reconnect(auth chan error) (err error) {
+	u := url.URL{Scheme: "ws", Host: c.host}
+
+	c.Log.Printf("[INFO] Reconnecting to %s", u.String())
+
+	if c.conn, _, err = c.dialer.Dial(u.String(), c.requestHeader); err != nil {
+		return err
+	}
+
+	select {
+	case a := <-auth:
+		return a
+	case <-time.After(c.ResponseTimeout * time.Millisecond):
+		return fmt.Errorf("timeout waiting for authentication: %dms", c.ResponseTimeout)
+	}
+}
+
 // Here we connect and send a v4.x-like message to the server. If it responds
 // properly, we want to fail immediately. Motiviation is similar to what the
 // obs-websocket server does when it detects a v4 client connecting to it (see
@@ -197,7 +214,7 @@ func (c *Client) checkProtocolVersion() error {
 		return fmt.Errorf(
 			"%s; %s",
 			"obs-websocket v4.x is not supported",
-			"please use github.com/andreykaipov/goobs@v0.8.1",
+			"please use github.com/onfield/goobs@v0.8.1",
 		)
 	}
 
@@ -213,7 +230,7 @@ func (c *Client) handleErrors() {
 }
 
 // translates raw server messages into opcodes
-func (c *Client) handleRawServerMessages(auth chan<- error) {
+func (c *Client) handleRawServerMessages(auth chan error) {
 	for {
 		raw := json.RawMessage{}
 		if err := c.conn.ReadJSON(&raw); err != nil {
@@ -233,6 +250,15 @@ func (c *Client) handleRawServerMessages(auth chan<- error) {
 				return
 			default:
 				c.errors <- fmt.Errorf("reading raw message from websocket connection: %w", t)
+				c.conn.Close()
+				for {
+					time.Sleep(15 * time.Second)
+					if c.checkProtocolVersion() == nil {
+						if c.reconnect(auth) == nil {
+							break
+						}
+					}
+				}
 				continue
 			}
 		}
@@ -339,7 +365,7 @@ func (c *Client) writeEvent(event interface{}) {
 			// incoming events was full (but might not be by now),
 			// so safely read off the oldest, and write the latest
 			select {
-			case _ = <-c.IncomingEvents:
+			case <-c.IncomingEvents:
 			default:
 			}
 

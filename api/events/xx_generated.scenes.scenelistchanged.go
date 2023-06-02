@@ -2,7 +2,7 @@
 
 package events
 
-import typedefs "github.com/andreykaipov/goobs/api/typedefs"
+import typedefs "github.com/onfield/goobs/api/typedefs"
 
 /*
 Represents the event body for the SceneListChanged event.

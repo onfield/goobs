@@ -2,7 +2,7 @@
 
 package ui
 
-import api "github.com/andreykaipov/goobs/api"
+import api "github.com/onfield/goobs/api"
 
 // Client represents a client for 'ui' requests.
 type Client struct {

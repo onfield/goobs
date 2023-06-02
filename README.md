@@ -8,11 +8,11 @@
 [protocol-img]: https://img.shields.io/badge/obs--websocket-v5.1.0-blue?logo=obs-studio&style=flat-square
 [protocol-url]: https://github.com/obsproject/obs-websocket/blob/5.1.0/docs/generated/protocol.md
 [doc-img]: https://img.shields.io/badge/pkg.go.dev-reference-blue?logo=go&logoColor=white&style=flat-square
-[doc-url]: https://pkg.go.dev/github.com/andreykaipov/goobs
+[doc-url]: https://pkg.go.dev/github.com/onfield/goobs
 [build-img]: https://img.shields.io/github/actions/workflow/status/andreykaipov/goobs/ci.yml?logo=github&style=flat-square&branch=master
-[build-url]: https://github.com/andreykaipov/goobs/actions/workflows/ci.yml
-[goreport-img]: https://goreportcard.com/badge/github.com/andreykaipov/goobs?logo=go&logoColor=white&style=flat-square
-[goreport-url]: https://goreportcard.com/report/github.com/andreykaipov/goobs
+[build-url]: https://github.com/onfield/goobs/actions/workflows/ci.yml
+[goreport-img]: https://goreportcard.com/badge/github.com/onfield/goobs?logo=go&logoColor=white&style=flat-square
+[goreport-url]: https://goreportcard.com/report/github.com/onfield/goobs
 
 It's a Go client for
 [obsproject/obs-websocket](https://github.com/obsproject/obs-websocket),
@@ -25,7 +25,7 @@ after you've initialized your own:
 
 ```console
 ❯ go mod init blah
-❯ go get github.com/andreykaipov/goobs
+❯ go get github.com/onfield/goobs
 ```
 
 ## usage
@@ -40,7 +40,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/andreykaipov/goobs"
+	"github.com/onfield/goobs"
 )
 
 func main() {

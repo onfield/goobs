@@ -2,7 +2,7 @@
 
 package general
 
-import api "github.com/andreykaipov/goobs/api"
+import api "github.com/onfield/goobs/api"
 
 // Client represents a client for 'general' requests.
 type Client struct {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/andreykaipov/goobs"
+	"github.com/onfield/goobs"
 )
 
 func main() {

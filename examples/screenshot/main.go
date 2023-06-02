@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/andreykaipov/goobs"
-	"github.com/andreykaipov/goobs/api/requests/sources"
+	"github.com/onfield/goobs"
+	"github.com/onfield/goobs/api/requests/sources"
 )
 
 func main() {

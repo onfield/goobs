@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/andreykaipov/goobs/api/opcodes"
-	"github.com/andreykaipov/goobs/api/requests"
 	uuid "github.com/nu7hatch/gouuid"
+	"github.com/onfield/goobs/api/opcodes"
+	"github.com/onfield/goobs/api/requests"
 )
 
 type Params interface{ GetRequestName() string }

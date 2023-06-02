@@ -2,7 +2,7 @@
 
 package scenes
 
-import api "github.com/andreykaipov/goobs/api"
+import api "github.com/onfield/goobs/api"
 
 // Client represents a client for 'scenes' requests.
 type Client struct {

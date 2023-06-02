@@ -2,7 +2,7 @@
 
 package ui
 
-import typedefs "github.com/andreykaipov/goobs/api/typedefs"
+import typedefs "github.com/onfield/goobs/api/typedefs"
 
 // Represents the request body for the GetMonitorList request.
 type GetMonitorListParams struct{}

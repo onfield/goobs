@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	goobs = "github.com/andreykaipov/goobs"
+	goobs = "github.com/onfield/goobs"
 	root  = ""
 
 	version  = ""

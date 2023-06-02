@@ -2,7 +2,7 @@
 
 package scenes
 
-import typedefs "github.com/andreykaipov/goobs/api/typedefs"
+import typedefs "github.com/onfield/goobs/api/typedefs"
 
 // Represents the request body for the GetSceneList request.
 type GetSceneListParams struct{}

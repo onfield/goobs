@@ -6,9 +6,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/andreykaipov/goobs"
-	"github.com/andreykaipov/goobs/api/events"
-	"github.com/andreykaipov/goobs/api/requests/inputs"
+	"github.com/onfield/goobs"
+	"github.com/onfield/goobs/api/events"
+	"github.com/onfield/goobs/api/requests/inputs"
 )
 
 func green(f string, v ...any) { log.Printf("\033[32m"+f+"\033[0m", v...) }

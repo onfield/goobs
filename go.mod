@@ -1,4 +1,4 @@
-module github.com/andreykaipov/goobs
+module github.com/onfield/goobs
 
 go 1.19
 
