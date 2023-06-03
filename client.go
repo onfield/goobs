@@ -297,6 +297,10 @@ func (c *Client) handleOpcodes(auth chan<- error) {
 				if err := c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
 					auth <- fmt.Errorf("sending Identify to server `%s`: %w", msg, err)
 				}
+			} else {
+				c.errors <- nil
+				c.Log.Printf("[DEBUG] handleOpCodes(1) exiting - %T", op)
+				return
 			}
 
 		case *opcodes.Identified:
@@ -336,6 +340,10 @@ func (c *Client) handleOpcodes(auth chan<- error) {
 				if err := c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
 					c.errors <- fmt.Errorf("sending Request to server `%s`: %w", msg, err)
 				}
+			} else {
+				c.errors <- nil
+				c.Log.Printf("[DEBUG] handleOpCodes(2) exiting - %T", op)
+				return
 			}
 
 		case *opcodes.RequestResponse:
@@ -345,9 +353,11 @@ func (c *Client) handleOpcodes(auth chan<- error) {
 
 		default:
 			c.errors <- fmt.Errorf("unhandled opcode %T", op)
-			c.errors <- nil
-			c.Log.Printf("[DEBUG] handleOpCodes() exiting - %T", op)
-			return
+			if !c.Connected() {
+				c.errors <- nil
+				c.Log.Printf("[DEBUG] handleOpCodes(3) exiting - %T", op)
+				return
+			}
 		}
 	}
 }
